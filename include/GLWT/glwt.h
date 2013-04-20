@@ -40,6 +40,8 @@ typedef enum GLWTEventType {
     GLWT_WINDOW_FOCUS_OUT,
     GLWT_WINDOW_MOUSE_ENTER,
     GLWT_WINDOW_MOUSE_LEAVE,
+    GLWT_WINDOW_SURFACE_CREATE,
+    GLWT_WINDOW_SURFACE_DESTROY,
     GLWT_KEY_RELEASE,
     GLWT_KEY_PRESS,
     GLWT_BUTTON_RELEASE,
@@ -48,7 +50,7 @@ typedef enum GLWTEventType {
     GLWT_CHARACTER_INPUT,
 } GLWTEventType;
 
-typedef struct GLWTEvent
+typedef struct GLWTWindowEvent
 {
     GLWTWindow *window;
 
