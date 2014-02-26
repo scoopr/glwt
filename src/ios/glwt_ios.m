@@ -15,11 +15,40 @@
 
 @implementation GLWTApplication
 
+-(void)applicationDidBecomeActive:(UIApplication *)application
+{
+//    NSLog(@"applicationDidBecomeActive");
+}
+
+-(void)applicationWillResignActive:(UIApplication *)application
+{
+//    NSLog(@"applicationWillResignActive");
+}
+
+
+-(void)applicationDidEnterBackground:(UIApplication *)application
+{
+    glwtAppPause(glwt.userdata);
+}
+
+-(void)applicationWillEnterForeground:(UIApplication *)application
+{
+    glwtAppResume(glwt.userdata);
+}
+
+-(void)applicationWillTerminate:(UIApplication *)application
+{
+    glwtAppPause(glwt.userdata);
+    glwtAppStop(glwt.userdata);
+    glwt.userdata = NULL;
+}
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 
     mainWindow = glwtAppInit(0, NULL);
+    glwtAppResume(glwt.userdata);
 
     return NO;
 }
