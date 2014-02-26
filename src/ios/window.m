@@ -48,10 +48,6 @@
     // TODO: send expose event
 }
 
-- (void)drawRect:(CGRect)rect
-{
-}
-
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     for(UITouch* touch in touches)
