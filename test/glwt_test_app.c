@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <GLWT/glwt.h>
 #include <GLWT/glwt_intrusive.h>
@@ -119,6 +120,23 @@ static void window_callback(GLWTWindow *window, const GLWTWindowEvent *event, vo
     }
 }
 
+struct my_app_state {
+// this is global state
+};
+
+void glwtAppStop(void *userdata) {
+    struct my_app_state* app_state = userdata;
+    free(app_state);
+}
+
+void glwtAppPause(void *userdata) {
+//    struct my_app_state* app_state = userdata;
+}
+
+void glwtAppResume(void *userdata) {
+//    struct my_app_state* app_state = userdata;
+}
+
 GLWTWindow *glwtAppInit(int argc, char *argv[])
 {
     (void)argc;
@@ -131,8 +149,11 @@ GLWTWindow *glwtAppInit(int argc, char *argv[])
         GLWT_API_ANY | GLWT_PROFILE_DEBUG,
         2, 0
     };
+    
+    struct my_app_state* app_state = calloc(sizeof(struct my_app_state), 1);
+    
 
-    if(glwtInit(&glwt_config, error_callback, NULL) != 0)
+    if(glwtInit(&glwt_config, error_callback, app_state) != 0)
         return 0;
 
     return glwtWindowCreate("", 400, 300, NULL, window_callback, NULL);
