@@ -99,6 +99,21 @@ static void window_callback(GLWTWindow *window, const GLWTWindowEvent *event, vo
         case GLWT_WINDOW_MOUSE_LEAVE:
             LOGI("Mouse %s\n", (event->type == GLWT_WINDOW_MOUSE_ENTER) ? "enter" : "leave");
             break;
+        case GLWT_WINDOW_TOUCH_BEGIN:
+        case GLWT_WINDOW_TOUCH_MOVE:
+        case GLWT_WINDOW_TOUCH_END:
+        case GLWT_WINDOW_TOUCH_CANCEL:
+            {
+                const char* type_names[] = {
+                    "begin",
+                    "move",
+                    "end",
+                    "cancel"
+                };
+                LOGI("Touch %s x: %f y: %f id: %d\n", type_names[event->type - GLWT_WINDOW_TOUCH_BEGIN], 
+                                           event->touch.x, event->touch.y, event->touch.touch_id);
+            }
+            break;
         default:
             break;
     }
