@@ -10,7 +10,13 @@
         #include <wgl/glwt_wgl.h>
     #endif
 #elif defined(__APPLE__)
-    #include <osx/glwt_osx.h>
+    #include <TargetConditionals.h>
+
+    #if TARGET_OS_IPHONE
+        #include <ios/glwt_ios.h>
+    #else
+        #include <osx/glwt_osx.h>
+    #endif
 #elif defined(RASPBERRYPI)
     #include <rpi/glwt_rpi.h>
 #else
@@ -42,7 +48,9 @@ struct glwt
     #ifndef GLWT_USE_EGL
     struct glwt_wgl wgl;
     #endif
-#elif defined(__APPLE__)
+#elif TARGET_OS_IPHONE
+    struct glwt_ios ios;
+#elif TARGET_OS_MAC
     struct glwt_osx osx;
 #elif defined(RASPBERRYPI)
     struct glwt_rpi rpi;
@@ -70,7 +78,9 @@ struct GLWTWindow
     #ifndef GLWT_USE_EGL
     struct glwt_window_wgl wgl;
     #endif
-#elif defined(__APPLE__)
+#elif TARGET_OS_IPHONE
+    struct glwt_window_ios ios;
+#elif TARGET_OS_MAC
     struct glwt_window_osx osx;
 #elif defined(RASPBERRYPI)
     struct glwt_window_rpi rpi;

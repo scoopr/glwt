@@ -46,6 +46,10 @@ typedef enum GLWTWindowEventType {
     GLWT_WINDOW_MOUSE_ENTER,
     GLWT_WINDOW_MOUSE_LEAVE,
     GLWT_WINDOW_CHARACTER_INPUT,
+    GLWT_WINDOW_TOUCH_BEGIN,
+    GLWT_WINDOW_TOUCH_MOVE,
+    GLWT_WINDOW_TOUCH_END,
+    GLWT_WINDOW_TOUCH_CANCEL,
     GLWT_WINDOW_SURFACE_CREATE,
     GLWT_WINDOW_SURFACE_DESTROY,
 } GLWTWindowEventType;
@@ -62,6 +66,7 @@ typedef struct GLWTWindowEvent
         struct { int x, y, buttons; } motion;
         struct { int x, y, button, mod; } button;
         struct { unsigned int unicode; } character;
+        struct { float x, y; int touch_id; } touch;
         struct { int dummy; } dummy;
     };
 } GLWTWindowEvent;
