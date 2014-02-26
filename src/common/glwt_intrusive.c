@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
         window->win_callback(window, &event, window->userdata);
     }
 
-    // TODO: app stop event
-
     glwtWindowShow(window, 0);
     glwtWindowDestroy(window);
+
+    glwtAppStop(glwt.userdata);
 
     glwtQuit();
 
