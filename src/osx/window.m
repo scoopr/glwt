@@ -713,6 +713,12 @@ GLWTWindow *glwtWindowCreate(
 
     win->osx.modifier_flags = [NSEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
 
+    GLWTWindowEvent e;
+    e.window = win;
+    e.type = GLWT_WINDOW_SURFACE_CREATE;
+    win->win_callback(win, &e, win->userdata);
+
+
     return win;
 
 error:
