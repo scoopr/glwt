@@ -1,5 +1,6 @@
 #import <GLWT/glwt.h>
 #import <glwt_internal.h>
+#import "window.h"
 
 static int createPixelFormat(const GLWTConfig *config)
 {
@@ -80,6 +81,8 @@ int glwtInit(const GLWTConfig *config,
     glwt.osx.app = [NSApplication sharedApplication];
     glwt.osx.autorelease_pool = [[NSAutoreleasePool alloc] init];
 
+    glwt.osx.animating_windows = [[NSMutableSet alloc] init];
+
     NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
     NSString *mainNibName = [infoDictionary objectForKey:@"NSMainNibFile"];
     
@@ -116,6 +119,7 @@ int glwtInit(const GLWTConfig *config,
 
 void glwtQuit()
 {
+    [glwt.osx.animating_windows release];
     [glwt.osx.nib_toplevel release];
     if (glwt.osx.app)
     {
@@ -132,12 +136,16 @@ void glwtQuit()
 
 int glwtEventHandle(int wait)
 {
+    int wait_this_iteration;
     int events_handled = 0;
     do
     {
+        wait_this_iteration = wait;
+        if([glwt.osx.animating_windows count] > 0) wait_this_iteration = 0;
+
         NSEvent* event = [
             glwt.osx.app nextEventMatchingMask: NSAnyEventMask
-            untilDate: wait ? [NSDate distantFuture] : nil
+            untilDate: wait_this_iteration ? [NSDate distantFuture] : nil
             inMode: NSDefaultRunLoopMode
             dequeue: YES];
 
@@ -150,10 +158,35 @@ int glwtEventHandle(int wait)
 
             events_handled++;
         }
-    } while(events_handled == 0 && wait);
+
+        for( GLWTNSWindow* w in glwt.osx.animating_windows )
+        {
+            // TODO: use CVDisplayLink instead?
+
+            GLWTWindowEvent e;
+            e.window = w.glwt_window;
+            e.type = GLWT_WINDOW_EXPOSE;
+            e.window->win_callback(e.window, &e, e.window->userdata);
+        }
+
+    } while(events_handled == 0 && wait_this_iteration);
 
     [glwt.osx.autorelease_pool drain];
     glwt.osx.autorelease_pool = [NSAutoreleasePool new];
 
     return 0;
 }
+
+
+int glwtSetContinousRedraw(GLWTWindow* win, int enable)
+{
+    if(enable)
+    {
+        [glwt.osx.animating_windows addObject:win->osx.nswindow];
+    } else
+    {
+        [glwt.osx.animating_windows removeObject:win->osx.nswindow];
+    }
+    return 0;
+}
+

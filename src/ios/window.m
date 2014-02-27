@@ -5,16 +5,6 @@
 
 #import <OpenGLES/ES2/gl.h>
 
-@interface GLWTView : UIView
-{
-    GLWTWindow* glwtWindow;
-    CADisplayLink* displayLink;
-}
-@property (assign) GLWTWindow* glwtWindow;
-
-+(id)layerClass;
-
-@end
 
 
 @implementation GLWTView
@@ -31,9 +21,6 @@
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.contentMode = UIViewContentModeScaleToFill;
         self.multipleTouchEnabled = YES;
-        // TODO: enable display link for continous display update
-        // displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkCallback)];
-        // [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     }
     return self;
 }

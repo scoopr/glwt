@@ -15,6 +15,7 @@ struct glwt_osx
     id nib_toplevel;
     id autorelease_pool;
     id pixel_format;
+    id animating_windows;
 };
 
 struct glwt_window_osx

@@ -49,6 +49,8 @@ static void window_callback(GLWTWindow *window, const GLWTWindowEvent *event, vo
                 glwtAppTerminate();
             }
 
+			glwtSetContinousRedraw(window, 1);
+
             break;
 
         case GLWT_WINDOW_SURFACE_DESTROY:

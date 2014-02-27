@@ -1,6 +1,19 @@
 #ifndef GLWT_glwt_ios_h
 #define GLWT_glwt_ios_h
 
+#if defined(__OBJC__)
+#import <UIKit/UIKit.h>
+@interface GLWTView : UIView
+{
+    GLWTWindow* glwtWindow;
+}
+@property (assign) GLWTWindow* glwtWindow;
+
++(id)layerClass;
+
+@end
+#endif
+
 enum glwt_color_format
 {
     glwt_color_format_565 = 565,
@@ -10,6 +23,8 @@ enum glwt_color_format
 
 struct glwt_ios
 {
+    void* displayLink;
+    void* animating_views;
 };
 
 struct glwt_fbo_ios

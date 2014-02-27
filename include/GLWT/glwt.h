@@ -98,6 +98,8 @@ int glwtWindowGetSize(GLWTWindow *win, int *width, int *height);
 
 int glwtEventHandle(int wait);
 
+int glwtSetContinousRedraw(GLWTWindow* win, int enable);
+
 #ifdef __cplusplus
 }
 #endif

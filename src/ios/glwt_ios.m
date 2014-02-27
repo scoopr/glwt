@@ -41,13 +41,35 @@
     glwtAppPause(glwt.userdata);
     glwtAppStop(glwt.userdata);
     glwt.userdata = NULL;
+
+    [(NSMutableSet*)glwt.ios.animating_views release];
 }
 
+-(void)displayLinkCallback:(CADisplayLink*)sender
+{
+    for(GLWTView* view in (NSMutableSet*)glwt.ios.animating_views)
+    {
+        GLWTWindowEvent e;
+        e.window = view.glwtWindow;
+        e.type = GLWT_WINDOW_EXPOSE;
+        e.window->win_callback(e.window, &e, e.window->userdata);
+    }
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 
+    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkCallback:)];
+    displayLink.paused = YES;
+    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+
+    glwt.ios.animating_views = [[NSMutableSet alloc] init];
+    glwt.ios.displayLink = displayLink;
+
     mainWindow = glwtAppInit(0, NULL);
+
+
+
     glwtAppResume(glwt.userdata);
 
     return NO;
@@ -91,6 +113,27 @@ void glwtAppTerminate()
 }
 
 
+int glwtSetContinousRedraw(GLWTWindow* win, int enable)
+{
+    NSMutableSet* views = glwt.ios.animating_views;
+    if(enable)
+    {
+        [views addObject:win->ios.view];
+    } else
+    {
+        [views removeObject:win->ios.view];
+    }
+
+    CADisplayLink* displayLink = glwt.ios.displayLink;
+    if([views count] > 0)
+    {
+        displayLink.paused = NO;
+    } else
+    {
+        displayLink.paused = YES;
+    }
+    return 0;
+}
 
 
 int main(int argc, char** argv)
