@@ -2,6 +2,7 @@
 #import <glwt_internal.h>
 
 #import <mach/mach_time.h>
+#import <crt_externs.h> // for _NSGetProgname
 
 static int createPixelFormat(const GLWTConfig *config)
 {
@@ -65,6 +66,94 @@ static int createPixelFormat(const GLWTConfig *config)
     return 0;
 }
 
+static NSString * getApplicationName()
+{
+    size_t i;
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+
+    NSString *possibleNameKeys[] =
+    {
+        @"CFBundleDisplayName",
+        @"CFBundleName",
+        @"CFBundleExecutable",
+    };
+
+    char **progname = _NSGetProgname();
+
+    // See if the bundle provides a name for our app
+    for (i = 0; i < sizeof(possibleNameKeys)/sizeof(possibleNameKeys[0]); ++i)
+    {
+        id name = [infoDict objectForKey:possibleNameKeys[i]];
+        if (name && [name isKindOfClass:[NSString class]]
+            && ![name isEqualToString:@""])
+        {
+            return name;
+        }
+    }
+
+    // Try with process/executable name
+    if (progname && *progname)
+    {
+        return [NSString stringWithUTF8String: *progname];
+    }
+
+    // Should never be reached
+    return @"GLWT Application";
+}
+
+static void generateDefaultMenu()
+{
+    NSString *appName = getApplicationName();
+    NSMenu *menubar = [[NSMenu alloc] init];
+    [glwt.osx.app setMainMenu:menubar];
+
+    NSMenuItem *appMenuItem =
+        [menubar addItemWithTitle:@"" action:NULL keyEquivalent:@""];
+    NSMenu *appMenu = [[NSMenu alloc] init];
+    [appMenuItem setSubmenu:appMenu];
+
+    [appMenu addItemWithTitle:[NSString stringWithFormat:@"About %@", appName]
+                       action:@selector(orderFrontStandardAboutPanel:)
+                keyEquivalent:@""];
+    [appMenu addItem:[NSMenuItem separatorItem]];
+    [appMenu addItemWithTitle:[NSString stringWithFormat:@"Hide %@", appName]
+                       action:@selector(hide:)
+                keyEquivalent:@"h"];
+    [[appMenu addItemWithTitle:@"Hide Others"
+                       action:@selector(hideOtherApplications:)
+                keyEquivalent:@"h"]
+        setKeyEquivalentModifierMask:NSAlternateKeyMask | NSCommandKeyMask];
+    [appMenu addItemWithTitle:@"Show All"
+                       action:@selector(unhideAllApplications:)
+                keyEquivalent:@""];
+    [appMenu addItem:[NSMenuItem separatorItem]];
+    [appMenu addItemWithTitle:[NSString stringWithFormat:@"Quit %@", appName]
+                       action:@selector(terminate:)
+                keyEquivalent:@"q"];
+
+    NSMenuItem *windowMenuItem =
+        [menubar addItemWithTitle:@"" action:NULL keyEquivalent:@""];
+    NSMenu *windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
+    [glwt.osx.app setWindowsMenu:windowMenu];
+    [windowMenuItem setSubmenu:windowMenu];
+
+    [windowMenu addItemWithTitle:@"Minimize"
+                          action:@selector(performMiniaturize:)
+                   keyEquivalent:@"m"];
+    [windowMenu addItemWithTitle:@"Zoom"
+                          action:@selector(performZoom:)
+                   keyEquivalent:@""];
+    [windowMenu addItemWithTitle:@"Bring All to Front"
+                          action:@selector(arrangeInFront:)
+                   keyEquivalent:@""];
+
+    // Apparently this used to be declared in NSApplication.h
+    [glwt.osx.app performSelector:@selector(setAppleMenu:) withObject:appMenu];
+    [menubar release];
+    [appMenu release];
+    [windowMenu release];
+}
+
 int glwtInit(const GLWTConfig *config,
              void (*error_callback)(const char *msg, void *userdata),
              void *userdata)
@@ -91,11 +180,12 @@ int glwtInit(const GLWTConfig *config,
         // 10.7 and under (performSelector to avoid deprecation warnings)
         nibLoaded = (BOOL)[NSBundle performSelector:@selector(loadNibNamed:owner:) withObject:mainNibName withObject:NSApp];
     }
-    
     [glwt.osx.nib_toplevel retain];
+
     if(!nibLoaded)
     {
-        // well, you just don't have a nib
+        // TODO: don't generate menu on iOS?
+        generateDefaultMenu();
     }
 
     /*
@@ -105,7 +195,7 @@ int glwtInit(const GLWTConfig *config,
      */
     ProcessSerialNumber psn = { 0, kCurrentProcess };
     TransformProcessType(&psn, kProcessTransformToForegroundApplication);
-    [[NSApplication sharedApplication] activateIgnoringOtherApps: YES];
+    [glwt.osx.app activateIgnoringOtherApps: YES];
 
     [NSEvent setMouseCoalescingEnabled:NO];
     [glwt.osx.app finishLaunching];
