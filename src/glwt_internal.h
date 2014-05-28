@@ -4,25 +4,25 @@
 #include <GLWT/glwt.h>
 
 #if defined(WIN32)
-    #include <win32/glwt_win32.h>
+#include <win32/glwt_win32.h>
 
-    #ifndef GLWT_USE_EGL
-        #include <wgl/glwt_wgl.h>
-    #endif
+#ifndef GLWT_USE_EGL
+#include <wgl/glwt_wgl.h>
+#endif
 #elif defined(__APPLE__)
-    #include <osx/glwt_osx.h>
+#include <osx/glwt_osx.h>
 #elif defined(RASPBERRYPI)
-    #include <rpi/glwt_rpi.h>
+#include <rpi/glwt_rpi.h>
 #else
-    #include <x11/glwt_x11.h>
+#include <x11/glwt_x11.h>
 
-    #ifndef GLWT_USE_EGL
-        #include <glx/glwt_glx.h>
-    #endif
+#ifndef GLWT_USE_EGL
+#include <glx/glwt_glx.h>
+#endif
 #endif
 
 #ifdef GLWT_USE_EGL
-    #include <egl/glwt_egl.h>
+#include <egl/glwt_egl.h>
 #endif
 
 #ifdef __cplusplus
@@ -39,18 +39,18 @@ struct glwt
 
 #if defined(WIN32)
     struct glwt_win32 win32;
-    #ifndef GLWT_USE_EGL
+#ifndef GLWT_USE_EGL
     struct glwt_wgl wgl;
-    #endif
+#endif
 #elif defined(__APPLE__)
     struct glwt_osx osx;
 #elif defined(RASPBERRYPI)
     struct glwt_rpi rpi;
 #else
     struct glwt_x11 x11;
-    #ifndef GLWT_USE_EGL
+#ifndef GLWT_USE_EGL
     struct glwt_glx glx;
-    #endif
+#endif
 #endif
 #ifdef GLWT_USE_EGL
     struct glwt_egl egl;
@@ -61,24 +61,26 @@ extern struct glwt glwt;
 
 struct GLWTWindow
 {
-    void (*win_callback)(GLWTWindow *window, const GLWTWindowEvent *event, void *userdata);
+    void (*win_callback)(GLWTWindow *window,
+                         const GLWTWindowEvent *event,
+                         void *userdata);
     void *userdata;
     int closed;
 
 #if defined(WIN32)
     struct glwt_window_win32 win32;
-    #ifndef GLWT_USE_EGL
+#ifndef GLWT_USE_EGL
     struct glwt_window_wgl wgl;
-    #endif
+#endif
 #elif defined(__APPLE__)
     struct glwt_window_osx osx;
 #elif defined(RASPBERRYPI)
     struct glwt_window_rpi rpi;
 #else
     struct glwt_window_x11 x11;
-    #ifndef GLWT_USE_EGL
+#ifndef GLWT_USE_EGL
     struct glwt_window_glx glx;
-    #endif
+#endif
 #endif
 #ifdef GLWT_USE_EGL
     struct glwt_window_egl egl;

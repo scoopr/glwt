@@ -26,9 +26,9 @@ int glwtErrorPrintf(const char *fmt, ...)
     size = vsnprintf(NULL, 0, fmt, ap);
     va_end(ap);
 
-    buffer = (char *)alloca(size+1);
+    buffer = (char *)alloca(size + 1);
     va_start(ap, fmt);
-    val = vsnprintf(buffer, size+1, fmt, ap);
+    val = vsnprintf(buffer, size + 1, fmt, ap);
     va_end(ap);
 
     if(glwt.error_callback)

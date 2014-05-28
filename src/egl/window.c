@@ -3,22 +3,23 @@
 int glwtWindowCreateContextEGL(GLWTWindow *win, GLWTWindow *share)
 {
     int context_attribs[] = {
-        EGL_CONTEXT_CLIENT_VERSION, glwt.api_version_major != 0 ? glwt.api_version_major : 1,
-        EGL_NONE
-    };
+        EGL_CONTEXT_CLIENT_VERSION,
+        glwt.api_version_major != 0 ? glwt.api_version_major : 1,
+        EGL_NONE};
 
-    if(!eglBindAPI((glwt.api & GLWT_API_MASK) == GLWT_API_OPENGL ?
-        EGL_OPENGL_API : EGL_OPENGL_ES_API))
+    if(!eglBindAPI((glwt.api & GLWT_API_MASK) == GLWT_API_OPENGL
+                       ? EGL_OPENGL_API
+                       : EGL_OPENGL_ES_API))
     {
         glwtErrorPrintf("eglBindAPI failed");
         return -1;
     }
 
-    win->egl.context = eglCreateContext(
-        glwt.egl.display,
-        glwt.egl.config,
-        share ? share->egl.context : EGL_NO_CONTEXT,
-        context_attribs);
+    win->egl.context =
+        eglCreateContext(glwt.egl.display,
+                         glwt.egl.config,
+                         share ? share->egl.context : EGL_NO_CONTEXT,
+                         context_attribs);
     if(!win->egl.context)
     {
         glwtErrorPrintf("eglCreateContext failed");
@@ -28,17 +29,13 @@ int glwtWindowCreateContextEGL(GLWTWindow *win, GLWTWindow *share)
     return 0;
 }
 
-int glwtWindowCreateSurfaceEGL(GLWTWindow *win, EGLNativeWindowType native_window)
+int glwtWindowCreateSurfaceEGL(GLWTWindow *win,
+                               EGLNativeWindowType native_window)
 {
-    int surface_attribs[] = {
-        EGL_NONE
-    };
+    int surface_attribs[] = {EGL_NONE};
 
     win->egl.surface = eglCreateWindowSurface(
-        glwt.egl.display,
-        glwt.egl.config,
-        native_window,
-        surface_attribs);
+        glwt.egl.display, glwt.egl.config, native_window, surface_attribs);
     if(!win->egl.surface)
     {
         glwtErrorPrintf("eglCreateWindowSurface failed");
@@ -48,10 +45,12 @@ int glwtWindowCreateSurfaceEGL(GLWTWindow *win, EGLNativeWindowType native_windo
     return 0;
 }
 
-int glwtWindowCreateEGL(GLWTWindow *win, GLWTWindow *share, EGLNativeWindowType native_window)
+int glwtWindowCreateEGL(GLWTWindow *win,
+                        GLWTWindow *share,
+                        EGLNativeWindowType native_window)
 {
     if(glwtWindowCreateContextEGL(win, share) != 0 ||
-        glwtWindowCreateSurfaceEGL(win, native_window) != 0)
+       glwtWindowCreateSurfaceEGL(win, native_window) != 0)
     {
         glwtWindowDestroyEGL(win);
         return -1;
@@ -77,11 +76,10 @@ void glwtWindowDestroyEGL(GLWTWindow *win)
 
 int glwtMakeCurrent(GLWTWindow *win)
 {
-    if(!eglMakeCurrent(
-        glwt.egl.display,
-        win ? win->egl.surface : EGL_NO_SURFACE,
-        win ? win->egl.surface : EGL_NO_SURFACE,
-        win ? win->egl.context : EGL_NO_CONTEXT))
+    if(!eglMakeCurrent(glwt.egl.display,
+                       win ? win->egl.surface : EGL_NO_SURFACE,
+                       win ? win->egl.surface : EGL_NO_SURFACE,
+                       win ? win->egl.context : EGL_NO_CONTEXT))
 
     {
         glwtErrorPrintf("eglMakeCurrent failed: %x\n", eglGetError());
@@ -118,7 +116,7 @@ int glwtSwapInterval(GLWTWindow *win, int interval)
 int glwtWindowGetSize(GLWTWindow *win, int *width, int *height)
 {
     if(!eglQuerySurface(glwt.egl.display, win->egl.surface, EGL_WIDTH, width) ||
-        !eglQuerySurface(glwt.egl.display, win->egl.surface, EGL_HEIGHT, height))
+       !eglQuerySurface(glwt.egl.display, win->egl.surface, EGL_HEIGHT, height))
     {
         glwtErrorPrintf("eglQuerySurface failed: %x\n", eglGetError());
         return -1;

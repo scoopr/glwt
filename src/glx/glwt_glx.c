@@ -7,7 +7,8 @@
 
 static int supportedGLXExtension(const char *ext)
 {
-    const char *extensions = glXQueryExtensionsString(glwt.x11.display, glwt.x11.screen_num);
+    const char *extensions =
+        glXQueryExtensionsString(glwt.x11.display, glwt.x11.screen_num);
     return strstr(extensions, ext) != 0;
 }
 
@@ -27,7 +28,10 @@ static int requireGLXVersion(int req_major, int req_minor)
     if(major < req_major || (major == req_major && minor < req_minor))
     {
         glwtErrorPrintf("GLX version %d.%d required. GLX version %d.%d found.",
-            req_major, req_minor, major, minor);
+                        req_major,
+                        req_minor,
+                        major,
+                        minor);
         return 0;
     }
 
@@ -47,32 +51,43 @@ int glwtInitGLX(const GLWTConfig *config)
     }
 
     if(!requireGLXVersion(1, 4) ||
-        !requireGLXExtension("GLX_ARB_create_context") ||
-        !requireGLXExtension("GLX_ARB_create_context_profile") ||
-        !requireGLXExtension("GLX_EXT_swap_control"))
+       !requireGLXExtension("GLX_ARB_create_context") ||
+       !requireGLXExtension("GLX_ARB_create_context_profile") ||
+       !requireGLXExtension("GLX_EXT_swap_control"))
         return -1;
 
     const int fbconfig_attribs[] = {
-        GLX_DOUBLEBUFFER, 1,
-        GLX_RENDER_TYPE, GLX_RGBA_BIT,
-        GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-        GLX_RED_SIZE, config ? config->red_bits : 0,
-        GLX_GREEN_SIZE, config ? config->green_bits : 0,
-        GLX_BLUE_SIZE, config ? config->blue_bits : 0,
-        GLX_ALPHA_SIZE, config ? config->alpha_bits : 0,
-        GLX_DEPTH_SIZE, config ? config->depth_bits : 0,
-        GLX_STENCIL_SIZE, config ? config->stencil_bits : 0,
-        GLX_SAMPLES, config ? config->samples : 0,
-        GLX_SAMPLE_BUFFERS, config ? config->sample_buffers : 0,
-        0, 0,
+        GLX_DOUBLEBUFFER,
+        1,
+        GLX_RENDER_TYPE,
+        GLX_RGBA_BIT,
+        GLX_DRAWABLE_TYPE,
+        GLX_WINDOW_BIT,
+        GLX_RED_SIZE,
+        config ? config->red_bits : 0,
+        GLX_GREEN_SIZE,
+        config ? config->green_bits : 0,
+        GLX_BLUE_SIZE,
+        config ? config->blue_bits : 0,
+        GLX_ALPHA_SIZE,
+        config ? config->alpha_bits : 0,
+        GLX_DEPTH_SIZE,
+        config ? config->depth_bits : 0,
+        GLX_STENCIL_SIZE,
+        config ? config->stencil_bits : 0,
+        GLX_SAMPLES,
+        config ? config->samples : 0,
+        GLX_SAMPLE_BUFFERS,
+        config ? config->sample_buffers : 0,
+        0,
+        0,
     };
 
     int num_fbconfigs = 0;
-    GLXFBConfig *fbconfigs = glXChooseFBConfig(
-        glwt.x11.display,
-        glwt.x11.screen_num,
-        fbconfig_attribs,
-        &num_fbconfigs);
+    GLXFBConfig *fbconfigs = glXChooseFBConfig(glwt.x11.display,
+                                               glwt.x11.screen_num,
+                                               fbconfig_attribs,
+                                               &num_fbconfigs);
 
     if(!fbconfigs)
     {
@@ -90,7 +105,10 @@ int glwtInitGLX(const GLWTConfig *config)
     glwt.glx.fbconfig = fbconfigs[0];
     XFree(fbconfigs);
 
-    glXGetFBConfigAttrib(glwt.x11.display, glwt.glx.fbconfig, GLX_VISUAL_ID, &glwt.glx.visual_id);
+    glXGetFBConfigAttrib(glwt.x11.display,
+                         glwt.glx.fbconfig,
+                         GLX_VISUAL_ID,
+                         &glwt.glx.visual_id);
 
     return 0;
 }

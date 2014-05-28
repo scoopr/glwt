@@ -3,24 +3,23 @@
 
 static int createPixelFormat(const GLWTConfig *config)
 {
-    if(config &&
-       (config->api & GLWT_API_MASK) != GLWT_API_ANY &&
+    if(config && (config->api & GLWT_API_MASK) != GLWT_API_ANY &&
        (config->api & GLWT_API_MASK) != GLWT_API_OPENGL)
     {
         glwtErrorPrintf("NSOpenGL can only initialize OpenGL profiles");
         return -1;
     }
 
-    if(config &&
-       config->api_version_major == 3 &&
+    if(config && config->api_version_major == 3 &&
        (config->api & GLWT_PROFILE_MASK) != GLWT_PROFILE_CORE)
     {
-        glwtErrorPrintf("OSX only supports Core profile for OpenGL 3.2 contexts");
+        glwtErrorPrintf(
+            "OSX only supports Core profile for OpenGL 3.2 contexts");
         return -1;
     }
 
-    if (config &&
-        ((config->api_version_major == 3 && config->api_version_minor != 2) ||
+    if(config &&
+       ((config->api_version_major == 3 && config->api_version_minor != 2) ||
         config->api_version_major > 3))
     {
         glwtErrorPrintf("OSX only supports OpenGL versions up to 2.1 "
@@ -39,24 +38,29 @@ static int createPixelFormat(const GLWTConfig *config)
         colorBits = config->red_bits + config->green_bits + config->blue_bits;
         core = (config->api_version_major == 3 &&
                 (config->api & GLWT_PROFILE_MASK) == GLWT_PROFILE_CORE) ||
-                (config->api_version_major == 0);
+               (config->api_version_major == 0);
     }
 
-    NSOpenGLPixelFormatAttribute attribs[] = {
-        NSOpenGLPFADoubleBuffer,
-        NSOpenGLPFAColorSize, colorBits,
-        NSOpenGLPFADepthSize, config ? config->depth_bits : 0,
-        NSOpenGLPFAStencilSize, config ? config->stencil_bits : 0,
-        NSOpenGLPFASampleBuffers, config ? config->sample_buffers : 0,
-        NSOpenGLPFASamples, config ? config->samples : 0,
+    NSOpenGLPixelFormatAttribute attribs[] =
+    { NSOpenGLPFADoubleBuffer,
+      NSOpenGLPFAColorSize,
+      colorBits,
+      NSOpenGLPFADepthSize,
+      config ? config->depth_bits : 0,
+      NSOpenGLPFAStencilSize,
+      config ? config->stencil_bits : 0,
+      NSOpenGLPFASampleBuffers,
+      config ? config->sample_buffers : 0,
+      NSOpenGLPFASamples,
+      config ? config->samples : 0,
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
-        core ? NSOpenGLPFAOpenGLProfile : 0,
-        core ? NSOpenGLProfileVersion3_2Core : 0,
+      core ? NSOpenGLPFAOpenGLProfile : 0,
+      core ? NSOpenGLProfileVersion3_2Core : 0,
 #endif
-        0
-    };
+      0 };
 
-    glwt.osx.pixel_format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
+    glwt.osx.pixel_format =
+        [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
     if(glwt.osx.pixel_format == nil)
     {
         glwtErrorPrintf("Failed to create NSOpenGLPixelFormat");
@@ -93,9 +97,9 @@ int glwtInit(const GLWTConfig *config,
      command-line application or similiar. Tell system that we
      are actually a gui application that likes to have a dock icon etc.
      */
-    ProcessSerialNumber psn = { 0, kCurrentProcess };
+    ProcessSerialNumber psn = {0, kCurrentProcess};
     TransformProcessType(&psn, kProcessTransformToForegroundApplication);
-    [[NSApplication sharedApplication] activateIgnoringOtherApps: YES];
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
 
     [NSEvent setMouseCoalescingEnabled:NO];
     [glwt.osx.app finishLaunching];
@@ -105,7 +109,7 @@ int glwtInit(const GLWTConfig *config,
 
 void glwtQuit()
 {
-    if (glwt.osx.app)
+    if(glwt.osx.app)
     {
         [glwt.osx.app stop:nil];
         [glwt.osx.app release];
@@ -123,15 +127,16 @@ int glwtEventHandle(int wait)
     int events_handled = 0;
     do
     {
-        NSEvent* event = [
-            glwt.osx.app nextEventMatchingMask: NSAnyEventMask
-            untilDate: wait ? [NSDate distantFuture] : nil
-            inMode: NSDefaultRunLoopMode
-            dequeue: YES];
+        NSEvent *event = [glwt.osx.app
+            nextEventMatchingMask:NSAnyEventMask
+                        untilDate:wait ? [NSDate distantFuture] : nil
+                           inMode:NSDefaultRunLoopMode
+                          dequeue:YES];
 
         if(event)
         {
-            if ([event type] == NSKeyUp && ([event modifierFlags] & NSCommandKeyMask))
+            if([event type] == NSKeyUp &&
+               ([event modifierFlags] & NSCommandKeyMask))
                 [[glwt.osx.app keyWindow] sendEvent:event];
             else
                 [glwt.osx.app sendEvent:event];

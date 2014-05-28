@@ -23,8 +23,11 @@ int glwtInitEGL(const GLWTConfig *config);
 void glwtQuitEGL();
 
 int glwtWindowCreateContextEGL(GLWTWindow *win, GLWTWindow *share);
-int glwtWindowCreateSurfaceEGL(GLWTWindow *win, EGLNativeWindowType native_window);
-int glwtWindowCreateEGL(GLWTWindow *win, GLWTWindow *share, EGLNativeWindowType native_window);
+int glwtWindowCreateSurfaceEGL(GLWTWindow *win,
+                               EGLNativeWindowType native_window);
+int glwtWindowCreateEGL(GLWTWindow *win,
+                        GLWTWindow *share,
+                        EGLNativeWindowType native_window);
 void glwtWindowDestroySurfaceEGL(GLWTWindow *win);
 void glwtWindowDestroyEGL(GLWTWindow *win);
 

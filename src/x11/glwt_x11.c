@@ -21,9 +21,10 @@ static int xlib_error(Display *display, XErrorEvent *event)
     XGetErrorText(display, event->error_code, buffer, buffer_size);
 
     glwtErrorPrintf("Xlib error code: %d  major: %d  minor: %d  message: %s",
-        event->error_code,
-        event->request_code, event->minor_code,
-        buffer);
+                    event->error_code,
+                    event->request_code,
+                    event->minor_code,
+                    buffer);
     return 0;
 }
 
@@ -35,9 +36,13 @@ static int init_x11_atoms()
 #undef GLWT_X11_ATOM_NAME
     };
 
-    int num_atoms = sizeof(atom_names)/sizeof(*atom_names);
+    int num_atoms = sizeof(atom_names) / sizeof(*atom_names);
 
-    if(XInternAtoms(glwt.x11.display, atom_names, num_atoms, False, (Atom*)&glwt.x11.atoms) == 0)
+    if(XInternAtoms(glwt.x11.display,
+                    atom_names,
+                    num_atoms,
+                    False,
+                    (Atom *)&glwt.x11.atoms) == 0)
     {
         glwtErrorPrintf("XInternAtoms failed");
         return -1;
@@ -46,10 +51,9 @@ static int init_x11_atoms()
     return 0;
 }
 
-int glwtInit(
-    const GLWTConfig *config,
-    void (*error_callback)(const char *msg, void *userdata),
-    void *userdata)
+int glwtInit(const GLWTConfig *config,
+             void (*error_callback)(const char *msg, void *userdata),
+             void *userdata)
 {
     glwt.error_callback = error_callback;
     glwt.userdata = userdata;
@@ -71,7 +75,12 @@ int glwtInit(
 
     int xkb_major = XkbMajorVersion, xkb_minor = XkbMinorVersion;
     int xkb_opcode = -1, xkb_event = -1, xkb_error = -1;
-    if(!XkbQueryExtension(glwt.x11.display, &xkb_opcode, &xkb_event, &xkb_error, &xkb_major, &xkb_minor))
+    if(!XkbQueryExtension(glwt.x11.display,
+                          &xkb_opcode,
+                          &xkb_event,
+                          &xkb_error,
+                          &xkb_major,
+                          &xkb_minor))
     {
         glwtErrorPrintf("Xkb extension missing");
         goto error;
@@ -102,7 +111,8 @@ int glwtInit(
 #endif
 
     int num_vis;
-    XVisualInfo *vi = XGetVisualInfo(glwt.x11.display, VisualIDMask, &template, &num_vis);
+    XVisualInfo *vi =
+        XGetVisualInfo(glwt.x11.display, VisualIDMask, &template, &num_vis);
     if(!vi || num_vis < 1)
     {
         XFree(vi);
@@ -114,11 +124,11 @@ int glwtInit(
     glwt.x11.depth = vi->depth;
     XFree(vi);
 
-    if((glwt.x11.colormap = XCreateColormap(
-        glwt.x11.display,
-        RootWindow(glwt.x11.display, glwt.x11.screen_num),
-        glwt.x11.visual,
-        AllocNone)) == 0)
+    if((glwt.x11.colormap =
+            XCreateColormap(glwt.x11.display,
+                            RootWindow(glwt.x11.display, glwt.x11.screen_num),
+                            glwt.x11.visual,
+                            AllocNone)) == 0)
     {
         glwtErrorPrintf("XCreateColormap failed");
         goto error;

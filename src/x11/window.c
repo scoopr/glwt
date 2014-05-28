@@ -3,12 +3,14 @@
 
 #include <glwt_internal.h>
 
-GLWTWindow *glwtWindowCreate(
-    const char *title,
-    int width, int height,
-    GLWTWindow *share,
-    void (*win_callback)(GLWTWindow *window, const GLWTWindowEvent *event, void *userdata),
-    void *userdata)
+GLWTWindow *glwtWindowCreate(const char *title,
+                             int width,
+                             int height,
+                             GLWTWindow *share,
+                             void (*win_callback)(GLWTWindow *window,
+                                                  const GLWTWindowEvent *event,
+                                                  void *userdata),
+                             void *userdata)
 {
     GLWTWindow *win = calloc(1, sizeof(GLWTWindow));
     if(!win)
@@ -19,29 +21,25 @@ GLWTWindow *glwtWindowCreate(
 
     XSetWindowAttributes attrib;
     attrib.colormap = glwt.x11.colormap;
-    attrib.event_mask = 0
-        | StructureNotifyMask
-        | PointerMotionMask
-        | ButtonPressMask
-        | ButtonReleaseMask
-        | KeyPressMask
-        | KeyReleaseMask
-        | EnterWindowMask
-        | LeaveWindowMask
-        | FocusChangeMask
-        | ExposureMask;
+    attrib.event_mask = 0 | StructureNotifyMask | PointerMotionMask |
+                        ButtonPressMask | ButtonReleaseMask | KeyPressMask |
+                        KeyReleaseMask | EnterWindowMask | LeaveWindowMask |
+                        FocusChangeMask | ExposureMask;
     unsigned long attrib_mask = CWColormap | CWEventMask;
 
-    win->x11.window = XCreateWindow(
-        glwt.x11.display,
-        RootWindow(glwt.x11.display, glwt.x11.screen_num),
-        0, 0, width, height,
-        0,
-        glwt.x11.depth,
-        InputOutput,
-        glwt.x11.visual,
-        attrib_mask,
-        &attrib);
+    win->x11.window =
+        XCreateWindow(glwt.x11.display,
+                      RootWindow(glwt.x11.display, glwt.x11.screen_num),
+                      0,
+                      0,
+                      width,
+                      height,
+                      0,
+                      glwt.x11.depth,
+                      InputOutput,
+                      glwt.x11.visual,
+                      attrib_mask,
+                      &attrib);
     if(!win->x11.window)
     {
         glwtErrorPrintf("XCreateWindow failed");
@@ -49,22 +47,24 @@ GLWTWindow *glwtWindowCreate(
     }
 
     Atom protocols[] = {
-        glwt.x11.atoms.WM_DELETE_WINDOW,
-        glwt.x11.atoms._NET_WM_PING,
+        glwt.x11.atoms.WM_DELETE_WINDOW, glwt.x11.atoms._NET_WM_PING,
     };
-    int num_protocols = sizeof(protocols)/sizeof(*protocols);
-    if(XSetWMProtocols(glwt.x11.display, win->x11.window, protocols, num_protocols) == 0)
+    int num_protocols = sizeof(protocols) / sizeof(*protocols);
+    if(XSetWMProtocols(
+           glwt.x11.display, win->x11.window, protocols, num_protocols) == 0)
     {
         glwtErrorPrintf("XSetWMProtocols failed");
         goto error;
     }
 
-    win->x11.xic = XCreateIC(
-        glwt.x11.xim,
-        XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
-        XNClientWindow, win->x11.window,
-        XNFocusWindow, win->x11.window,
-        NULL);
+    win->x11.xic = XCreateIC(glwt.x11.xim,
+                             XNInputStyle,
+                             XIMPreeditNothing | XIMStatusNothing,
+                             XNClientWindow,
+                             win->x11.window,
+                             XNFocusWindow,
+                             win->x11.window,
+                             NULL);
     if(!win->x11.xic)
     {
         glwtErrorPrintf("XCreateIC failed");
@@ -78,7 +78,10 @@ GLWTWindow *glwtWindowCreate(
 #endif
         goto error;
 
-    if(XSaveContext(glwt.x11.display, win->x11.window, glwt.x11.xcontext, (XPointer)win) != 0)
+    if(XSaveContext(glwt.x11.display,
+                    win->x11.window,
+                    glwt.x11.xcontext,
+                    (XPointer)win) != 0)
     {
         glwtErrorPrintf("XSaveContext failed");
         goto error;
@@ -97,7 +100,8 @@ void glwtWindowDestroy(GLWTWindow *win)
     if(!win)
         return;
 
-    if(XDeleteContext(glwt.x11.display, win->x11.window, glwt.x11.xcontext) != 0)
+    if(XDeleteContext(glwt.x11.display, win->x11.window, glwt.x11.xcontext) !=
+       0)
         glwtErrorPrintf("XDeleteContext failed");
 
 #ifdef GLWT_USE_EGL
@@ -126,12 +130,12 @@ void glwtWindowShow(GLWTWindow *win, int show)
 
 void glwtWindowSetTitle(GLWTWindow *window, const char *title)
 {
-    XChangeProperty(
-        glwt.x11.display,
-        window->x11.window,
-        glwt.x11.atoms._NET_WM_NAME,
-        glwt.x11.atoms.UTF8_STRING,
-        8,
-        PropModeReplace,
-        (unsigned char*)title, strlen(title));
+    XChangeProperty(glwt.x11.display,
+                    window->x11.window,
+                    glwt.x11.atoms._NET_WM_NAME,
+                    glwt.x11.atoms.UTF8_STRING,
+                    8,
+                    PropModeReplace,
+                    (unsigned char *)title,
+                    strlen(title));
 }

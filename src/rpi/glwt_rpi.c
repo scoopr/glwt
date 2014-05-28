@@ -15,10 +15,9 @@ static void set_echo(int on)
     tcsetattr(STDIN_FILENO, TCSANOW, &newtermios);
 }
 
-int glwtInit(
-    const GLWTConfig *config,
-    void (*error_callback)(const char *msg, void *userdata),
-    void *userdata)
+int glwtInit(const GLWTConfig *config,
+             void (*error_callback)(const char *msg, void *userdata),
+             void *userdata)
 {
     glwt.error_callback = error_callback;
     glwt.userdata = userdata;

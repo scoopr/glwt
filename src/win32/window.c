@@ -3,12 +3,14 @@
 
 #include <malloc.h>
 
-GLWTWindow *glwtWindowCreate(
-    const char *title,
-    int width, int height,
-    GLWTWindow *share,
-    void (*win_callback)(GLWTWindow *window, const GLWTWindowEvent *event, void *userdata),
-    void *userdata)
+GLWTWindow *glwtWindowCreate(const char *title,
+                             int width,
+                             int height,
+                             GLWTWindow *share,
+                             void (*win_callback)(GLWTWindow *window,
+                                                  const GLWTWindowEvent *event,
+                                                  void *userdata),
+                             void *userdata)
 {
     PIXELFORMATDESCRIPTOR pfd;
     RECT rect;
@@ -37,17 +39,18 @@ GLWTWindow *glwtWindowCreate(
     }
 
     nullterm = 0;
-    win->win32.hwnd = CreateWindowExW(
-        exstyle,
-        (LPCWSTR)(intptr_t)glwt.win32.classatom,
-        &nullterm,  // window title
-        style,
-        CW_USEDEFAULT, CW_USEDEFAULT,
-        rect.right - rect.left, rect.bottom - rect.top,
-        0,
-        0,
-        glwt.win32.hinstance,
-        0);
+    win->win32.hwnd = CreateWindowExW(exstyle,
+                                      (LPCWSTR)(intptr_t)glwt.win32.classatom,
+                                      &nullterm, // window title
+                                      style,
+                                      CW_USEDEFAULT,
+                                      CW_USEDEFAULT,
+                                      rect.right - rect.left,
+                                      rect.bottom - rect.top,
+                                      0,
+                                      0,
+                                      glwt.win32.hinstance,
+                                      0);
     if(!win->win32.hwnd)
     {
         glwtWin32Error("CreateWindowExW failed");
@@ -63,14 +66,13 @@ GLWTWindow *glwtWindowCreate(
         goto error;
     }
 
-    if(!SetPixelFormat(
-        win->win32.hdc,
+    if(!SetPixelFormat(win->win32.hdc,
 #ifdef GLWT_USE_EGL
-        glwt.egl.visual_id,
+                       glwt.egl.visual_id,
 #else
-        glwt.wgl.pixel_format,
+                       glwt.wgl.pixel_format,
 #endif
-        &pfd))
+                       &pfd))
     {
         glwtWin32Error("SetPixelFormat failed");
         goto error;
@@ -121,7 +123,8 @@ void glwtWindowSetTitle(GLWTWindow *win, const char *title)
     WCHAR *buffer;
     DWORD len;
 
-    if((len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, title, -1, NULL, 0)) == 0)
+    if((len = MultiByteToWideChar(
+            CP_UTF8, MB_ERR_INVALID_CHARS, title, -1, NULL, 0)) == 0)
     {
         glwtWin32Error("MultiByteToWideChar failed");
         return;

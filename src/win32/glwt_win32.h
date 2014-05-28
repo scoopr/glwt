@@ -20,6 +20,7 @@ struct glwt_window_win32
 };
 
 void glwtWin32Error(const char *msg);
-LRESULT CALLBACK glwtWin32WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+LRESULT CALLBACK
+glwtWin32WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 
 #endif

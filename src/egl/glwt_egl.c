@@ -5,28 +5,36 @@
 int glwtInitEGL(const GLWTConfig *config)
 {
     int config_attribs[] = {
-        EGL_RED_SIZE, config ? config->red_bits : 0,
-        EGL_GREEN_SIZE, config ? config->green_bits : 0,
-        EGL_BLUE_SIZE, config ? config->blue_bits : 0,
-        EGL_ALPHA_SIZE, config ? config->alpha_bits : 0,
-        EGL_DEPTH_SIZE, config ? config->depth_bits : 0,
-        EGL_STENCIL_SIZE, config ? config->stencil_bits : 0,
-        EGL_SAMPLES, config ? config->samples : 0,
-        EGL_SAMPLE_BUFFERS, config ? config->sample_buffers : 0,
-        EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+        EGL_RED_SIZE,
+        config ? config->red_bits : 0,
+        EGL_GREEN_SIZE,
+        config ? config->green_bits : 0,
+        EGL_BLUE_SIZE,
+        config ? config->blue_bits : 0,
+        EGL_ALPHA_SIZE,
+        config ? config->alpha_bits : 0,
+        EGL_DEPTH_SIZE,
+        config ? config->depth_bits : 0,
+        EGL_STENCIL_SIZE,
+        config ? config->stencil_bits : 0,
+        EGL_SAMPLES,
+        config ? config->samples : 0,
+        EGL_SAMPLE_BUFFERS,
+        config ? config->sample_buffers : 0,
+        EGL_SURFACE_TYPE,
+        EGL_WINDOW_BIT,
         EGL_RENDERABLE_TYPE,
-            (!config ||
-            (config->api & GLWT_API_MASK) == GLWT_API_ANY ||
-            ((config->api & GLWT_API_MASK) == GLWT_API_OPENGL_ES &&
-                (config->api_version_major == 0 || config->api_version_major == 2)))
-                ? EGL_OPENGL_ES2_BIT :
-            (config && (config->api & GLWT_API_MASK) == GLWT_API_OPENGL_ES && config->api_version_major == 1)
-                ? EGL_OPENGL_ES_BIT :
-            (config && (config->api & GLWT_API_MASK) == GLWT_API_OPENGL)
-                ? EGL_OPENGL_BIT :
-                0,
-        EGL_NONE
-    };
+        (!config || (config->api & GLWT_API_MASK) == GLWT_API_ANY ||
+         ((config->api & GLWT_API_MASK) == GLWT_API_OPENGL_ES &&
+          (config->api_version_major == 0 || config->api_version_major == 2)))
+            ? EGL_OPENGL_ES2_BIT
+            : (config && (config->api & GLWT_API_MASK) == GLWT_API_OPENGL_ES &&
+               config->api_version_major == 1)
+                  ? EGL_OPENGL_ES_BIT
+                  : (config && (config->api & GLWT_API_MASK) == GLWT_API_OPENGL)
+                        ? EGL_OPENGL_BIT
+                        : 0,
+        EGL_NONE};
 
     int num_configs;
 
@@ -50,20 +58,28 @@ int glwtInitEGL(const GLWTConfig *config)
         }
     }
 
-    if(!eglInitialize(glwt.egl.display, &glwt.egl.version_major, &glwt.egl.version_minor))
+    if(!eglInitialize(
+           glwt.egl.display, &glwt.egl.version_major, &glwt.egl.version_minor))
     {
         glwtErrorPrintf("EGL initialization failed");
         return -1;
     }
 
-    if(!eglChooseConfig(glwt.egl.display, config_attribs, &glwt.egl.config, 1, &num_configs) ||
-        num_configs != 1)
+    if(!eglChooseConfig(glwt.egl.display,
+                        config_attribs,
+                        &glwt.egl.config,
+                        1,
+                        &num_configs) ||
+       num_configs != 1)
     {
         glwtErrorPrintf("eglChooseConfig failed");
         goto error;
     }
 
-    if(!eglGetConfigAttrib(glwt.egl.display, glwt.egl.config, EGL_NATIVE_VISUAL_ID, &glwt.egl.visual_id))
+    if(!eglGetConfigAttrib(glwt.egl.display,
+                           glwt.egl.config,
+                           EGL_NATIVE_VISUAL_ID,
+                           &glwt.egl.visual_id))
     {
         glwtErrorPrintf("eglGetConfigAttrib failed");
         goto error;

@@ -13,8 +13,7 @@
 static int convertKeysym(unsigned int keyCode)
 {
     // Keyboard symbol translation table
-    static const unsigned int table[128] =
-    {
+    static const unsigned int table[128] = {
         /* 00 */ GLWT_KEY_A,
         /* 01 */ GLWT_KEY_S,
         /* 02 */ GLWT_KEY_D,
@@ -78,8 +77,8 @@ static int convertKeysym(unsigned int keyCode)
         /* 3c */ GLWT_KEY_RSHIFT,
         /* 3d */ GLWT_KEY_RALT,
         /* 3e */ GLWT_KEY_RCTRL,
-        /* 3f */ GLWT_KEY_UNKNOWN, // Fn
-        /* 40 */ GLWT_KEY_UNKNOWN, // F17
+        /* 3f */ GLWT_KEY_UNKNOWN,          // Fn
+        /* 40 */ GLWT_KEY_UNKNOWN,          // F17
         /* 41 */ GLWT_KEY_KEYPAD_SEPARATOR, // keypad comma/delete
         /* 42 */ GLWT_KEY_UNKNOWN,
         /* 43 */ GLWT_KEY_KEYPAD_MULTIPLY,
@@ -87,9 +86,9 @@ static int convertKeysym(unsigned int keyCode)
         /* 45 */ GLWT_KEY_KEYPAD_PLUS,
         /* 46 */ GLWT_KEY_UNKNOWN,
         /* 47 */ GLWT_KEY_NUM_LOCK, // Really KeypadClear
-        /* 48 */ GLWT_KEY_UNKNOWN, // VolumeUp
-        /* 49 */ GLWT_KEY_UNKNOWN, // VolumeDown
-        /* 4a */ GLWT_KEY_UNKNOWN, // Mute
+        /* 48 */ GLWT_KEY_UNKNOWN,  // VolumeUp
+        /* 49 */ GLWT_KEY_UNKNOWN,  // VolumeDown
+        /* 4a */ GLWT_KEY_UNKNOWN,  // Mute
         /* 4b */ GLWT_KEY_KEYPAD_DIVIDE,
         /* 4c */ GLWT_KEY_KEYPAD_ENTER,
         /* 4d */ GLWT_KEY_UNKNOWN,
@@ -129,7 +128,7 @@ static int convertKeysym(unsigned int keyCode)
         /* 6f */ GLWT_KEY_F12,
         /* 70 */ GLWT_KEY_UNKNOWN,
         /* 71 */ GLWT_KEY_UNKNOWN, // F15
-        /* 72 */ GLWT_KEY_INSERT, // Really Help
+        /* 72 */ GLWT_KEY_INSERT,  // Really Help
         /* 73 */ GLWT_KEY_HOME,
         /* 74 */ GLWT_KEY_PAGE_UP,
         /* 75 */ GLWT_KEY_DELETE,
@@ -145,7 +144,7 @@ static int convertKeysym(unsigned int keyCode)
         /* 7f */ GLWT_KEY_UNKNOWN,
     };
 
-    if (keyCode >= 128)
+    if(keyCode >= 128)
         return GLWT_KEY_UNKNOWN;
 
     return table[keyCode];
@@ -208,9 +207,14 @@ static unsigned int convertModifiers(unsigned int mods)
         [tracking_area release];
     }
 
-    NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways | NSTrackingInVisibleRect;
+    NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited |
+                                    NSTrackingActiveAlways |
+                                    NSTrackingInVisibleRect;
 
-    tracking_area = [[NSTrackingArea alloc] initWithRect:[self bounds] options:options owner:self userInfo:nil];
+    tracking_area = [[NSTrackingArea alloc] initWithRect:[self bounds]
+                                                 options:options
+                                                   owner:self
+                                                userInfo:nil];
     [self addTrackingArea:tracking_area];
     [super updateTrackingAreas];
 }
@@ -272,7 +276,8 @@ static unsigned int convertModifiers(unsigned int mods)
 
 - (void)flagsChanged:(NSEvent *)event
 {
-    NSUInteger newModifiers = [event modifierFlags] & NSDeviceIndependentModifierFlagsMask;
+    NSUInteger newModifiers =
+        [event modifierFlags] & NSDeviceIndependentModifierFlagsMask;
     int down = (newModifiers > glwt_window->osx.modifier_flags);
     glwt_window->osx.modifier_flags = newModifiers;
 
@@ -291,7 +296,7 @@ static unsigned int convertModifiers(unsigned int mods)
 
 - (void)mouseMoved:(NSEvent *)event
 {
-    if (!glwt_window->win_callback)
+    if(!glwt_window->win_callback)
         return;
 
     NSPoint pos = [self convertPoint:[event locationInWindow] fromView:nil];
@@ -309,7 +314,7 @@ static unsigned int convertModifiers(unsigned int mods)
 
 - (void)mouseDragged:(NSEvent *)event
 {
-    if (!glwt_window->win_callback)
+    if(!glwt_window->win_callback)
         return;
 
     NSPoint pos = [self convertPoint:[event locationInWindow] fromView:nil];
@@ -327,7 +332,7 @@ static unsigned int convertModifiers(unsigned int mods)
 
 - (void)rightMouseDragged:(NSEvent *)event
 {
-    if (!glwt_window->win_callback)
+    if(!glwt_window->win_callback)
         return;
 
     NSPoint pos = [self convertPoint:[event locationInWindow] fromView:nil];
@@ -345,7 +350,7 @@ static unsigned int convertModifiers(unsigned int mods)
 
 - (void)otherMouseDragged:(NSEvent *)event
 {
-    if (!glwt_window->win_callback)
+    if(!glwt_window->win_callback)
         return;
 
     NSPoint pos = [self convertPoint:[event locationInWindow] fromView:nil];
@@ -651,29 +656,31 @@ static unsigned int convertModifiers(unsigned int mods)
 // GLWT public functions
 //=================================================================
 
-GLWTWindow *glwtWindowCreate(
-    const char *title,
-    int width, int height,
-    GLWTWindow *share,
-    void (*win_callback)(GLWTWindow *window, const GLWTWindowEvent *event, void *userdata),
-    void *userdata)
+GLWTWindow *glwtWindowCreate(const char *title,
+                             int width,
+                             int height,
+                             GLWTWindow *share,
+                             void (*win_callback)(GLWTWindow *window,
+                                                  const GLWTWindowEvent *event,
+                                                  void *userdata),
+                             void *userdata)
 {
     GLWTView *view = 0;
     GLWTWindow *win = calloc(1, sizeof(GLWTWindow));
-    if (!win)
+    if(!win)
         goto error;
 
     win->win_callback = win_callback;
     win->userdata = userdata;
 
     unsigned int styleMask = NSTitledWindowMask | NSClosableWindowMask |
-    NSMiniaturizableWindowMask | NSResizableWindowMask;
+                             NSMiniaturizableWindowMask | NSResizableWindowMask;
 
     win->osx.nswindow = [[GLWTNSWindow alloc]
-                           initWithContentRect:NSMakeRect(0, 0, width, height)
-                           styleMask:styleMask
-                           backing:NSBackingStoreBuffered
-                           defer:NO];
+        initWithContentRect:NSMakeRect(0, 0, width, height)
+                  styleMask:styleMask
+                    backing:NSBackingStoreBuffered
+                      defer:NO];
     if(!win->osx.nswindow)
     {
         glwtErrorPrintf("NSWindow initWithContentRect failed");
@@ -688,7 +695,8 @@ GLWTWindow *glwtWindowCreate(
     [win->osx.nswindow setTitle:[NSString stringWithUTF8String:title]];
     [win->osx.nswindow setReleasedWhenClosed:NO];
 
-    view = [[GLWTView alloc] initWithFrame:[win->osx.nswindow frame]andGLWTWindow:win];
+    view = [[GLWTView alloc] initWithFrame:[win->osx.nswindow frame]
+                             andGLWTWindow:win];
     if(!view)
     {
         glwtErrorPrintf("NSView initWithFrame failed");
@@ -697,9 +705,9 @@ GLWTWindow *glwtWindowCreate(
     win->osx.view = [view retain];
     [win->osx.nswindow setContentView:view];
 
-    win->osx.ctx = [[NSOpenGLContext alloc]
-                            initWithFormat:glwt.osx.pixel_format
-                            shareContext: share ? share->osx.ctx : nil];
+    win->osx.ctx =
+        [[NSOpenGLContext alloc] initWithFormat:glwt.osx.pixel_format
+                                   shareContext:share ? share->osx.ctx : nil];
 
     if(!win->osx.ctx)
     {
@@ -711,7 +719,8 @@ GLWTWindow *glwtWindowCreate(
     if([win->osx.nswindow respondsToSelector:@selector(setRestorable:)])
         [win->osx.nswindow setRestorable:NO];
 
-    win->osx.modifier_flags = [NSEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
+    win->osx.modifier_flags =
+        [NSEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
 
     return win;
 
@@ -725,7 +734,7 @@ void glwtWindowDestroy(GLWTWindow *win)
     if(!win)
         return;
     if(win->osx.ctx)
-       [win->osx.ctx release];
+        [win->osx.ctx release];
     if(win->osx.nswindow)
     {
         [win->osx.nswindow setDelegate:nil];
@@ -760,7 +769,7 @@ void glwtWindowShow(GLWTWindow *win, int show)
 
 int glwtMakeCurrent(GLWTWindow *win)
 {
-    if (!win)
+    if(!win)
         [NSOpenGLContext clearCurrentContext];
     else
         [win->osx.ctx makeCurrentContext];
