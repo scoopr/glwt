@@ -4,6 +4,37 @@
 #import <mach/mach_time.h>
 #import <crt_externs.h> // for _NSGetProgname
 
+@interface GLWTApplication : NSApplication <NSApplicationDelegate> {
+}
+@end
+
+
+
+@implementation GLWTApplication
+-(void)applicationDidFinishLaunching:(NSNotification *)notification
+{
+    [NSApp stop:nil];
+
+    // http://www.cocoabuilder.com/archive/cocoa/219842-nsapp-stop.html
+    NSEvent* event = [NSEvent otherEventWithType:NSApplicationDefined
+                                        location:NSMakePoint(0,0)
+                                   modifierFlags:0
+                                       timestamp:0.0
+                                    windowNumber:0
+                                         context:nil
+                                         subtype:0
+                                           data1:0
+                                           data2:0];
+
+    [NSApp postEvent:event atStart:true];
+
+}
+@end
+
+
+
+
+
 static int createPixelFormat(const GLWTConfig *config)
 {
     if(config &&
@@ -152,7 +183,9 @@ static void generateDefaultMenu()
     [menubar release];
     [appMenu release];
     [windowMenu release];
+
 }
+
 
 int glwtInit(const GLWTConfig *config,
              void (*error_callback)(const char *msg, void *userdata),
@@ -165,8 +198,9 @@ int glwtInit(const GLWTConfig *config,
     if(createPixelFormat(config) < 0)
         return -1;
 
-    glwt.osx.app = [NSApplication sharedApplication];
     glwt.osx.autorelease_pool = [[NSAutoreleasePool alloc] init];
+    glwt.osx.app = [GLWTApplication sharedApplication];
+    [NSApp setDelegate:NSApp];
 
     NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
     NSString *mainNibName = [infoDictionary objectForKey:@"NSMainNibFile"];
@@ -188,6 +222,9 @@ int glwtInit(const GLWTConfig *config,
         generateDefaultMenu();
     }
 
+    [NSApp run];
+    // should resume immediately after applicationDidFinishLaunching
+
     /*
      If ran outside of application bundle, system assumes a
      command-line application or similiar. Tell system that we
@@ -197,8 +234,8 @@ int glwtInit(const GLWTConfig *config,
     TransformProcessType(&psn, kProcessTransformToForegroundApplication);
     [glwt.osx.app activateIgnoringOtherApps: YES];
 
+
     [NSEvent setMouseCoalescingEnabled:NO];
-    [glwt.osx.app finishLaunching];
 
     return 0;
 }
