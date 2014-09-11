@@ -54,12 +54,13 @@
     {
         CGPoint loc = [touch locationInView:self];
         // CGPoint prevloc = [touch previousLocationInView:self];
-        GLWTWindowEvent ev;
-        ev.type = GLWT_WINDOW_TOUCH_BEGIN;
+        GLWTEvent ev;
+        ev.type = GLWT_TOUCH_BEGIN;
+        ev.window = glwtWindow;
         ev.touch.x = loc.x;
         ev.touch.y = loc.y;
         ev.touch.touch_id = (int)touch;
-        glwtWindow->win_callback(glwtWindow, &ev, glwtWindow->userdata);
+        glwt.event_callback(&ev);
     }
 }
 
@@ -69,12 +70,13 @@
     {
         CGPoint loc = [touch locationInView:self];
         // CGPoint prevloc = [touch previousLocationInView:self];
-        GLWTWindowEvent ev;
-        ev.type = GLWT_WINDOW_TOUCH_MOVE;
+        GLWTEvent ev;
+        ev.type = GLWT_TOUCH_MOVE;
+        ev.window = glwtWindow;
         ev.touch.x = loc.x;
         ev.touch.y = loc.y;
         ev.touch.touch_id = (int)touch;
-        glwtWindow->win_callback(glwtWindow, &ev, glwtWindow->userdata);
+        glwt.event_callback(&ev);
     }
 }
 
@@ -84,12 +86,13 @@
     {
         CGPoint loc = [touch locationInView:self];
         // CGPoint prevloc = [touch previousLocationInView:self];
-        GLWTWindowEvent ev;
-        ev.type = GLWT_WINDOW_TOUCH_END;
+        GLWTEvent ev;
+        ev.type = GLWT_TOUCH_END;
+        ev.window = glwtWindow;
         ev.touch.x = loc.x;
         ev.touch.y = loc.y;
         ev.touch.touch_id = (int)touch;
-        glwtWindow->win_callback(glwtWindow, &ev, glwtWindow->userdata);
+        glwt.event_callback(&ev);
     }
 }
 
@@ -99,12 +102,13 @@
     {
         CGPoint loc = [touch locationInView:self];
         // CGPoint prevloc = [touch previousLocationInView:self];
-        GLWTWindowEvent ev;
-        ev.type = GLWT_WINDOW_TOUCH_CANCEL;
+        GLWTEvent ev;
+        ev.type = GLWT_TOUCH_CANCEL;
+        ev.window = glwtWindow;
         ev.touch.x = loc.x;
         ev.touch.y = loc.y;
         ev.touch.touch_id = (int)touch;
-        glwtWindow->win_callback(glwtWindow, &ev, glwtWindow->userdata);
+        glwt.event_callback(&ev);
     }
 }
 
@@ -142,11 +146,12 @@
     // TODO: don't recreate when the same size
     glwtRecreateSurface(glwtWindow);
 
-    GLWTWindowEvent ev;
+    GLWTEvent ev;
     ev.type = GLWT_WINDOW_RESIZE;
+    ev.window = glwtWindow;
     glwtWindowGetSize(glwtWindow, &ev.resize.width, &ev.resize.height);
 
-    glwtWindow->win_callback(glwtWindow, &ev, glwtWindow->userdata);
+    glwt.event_callback(&ev);
     
 }
 
@@ -246,11 +251,12 @@ int glwtRecreateSurface(GLWTWindow* win)
 }
 
 
-GLWTWindow *glwtWindowCreate(const char *title,
+GLWTWindow *glwtWindowCreate(
+                             const char *title,
                              int width, int height,
                              GLWTWindow *share,
-                             void (*win_callback)(GLWTWindow *window, const GLWTWindowEvent *event, void *userdata),
-                             void *userdata)
+                             void *userdata
+                             )
 {
     (void)title; // Not used
     (void)width;
@@ -258,9 +264,6 @@ GLWTWindow *glwtWindowCreate(const char *title,
 
     GLWTWindow* win = calloc(1, sizeof(GLWTWindow));
     if(!win) return NULL;
-    win->win_callback = win_callback;
-
-
 
     EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:nil];
 
@@ -304,19 +307,16 @@ GLWTWindow *glwtWindowCreate(const char *title,
     win->ios.view = view;
     win->userdata = userdata;
     
-    if(win->win_callback)
-    {
-        GLWTWindowEvent event;
-        event.window = win;
-        event.type = GLWT_WINDOW_SURFACE_CREATE;
-        event.dummy.dummy = 0;
-        win->win_callback(win, &event, win->userdata);
+    GLWTEvent event;
+    event.window = win;
+    event.type = GLWT_WINDOW_SURFACE_CREATE;
+    event.dummy.dummy = 0;
+    glwt.event_callback(&event);
 
-        event.window = win;
-        event.type = GLWT_WINDOW_EXPOSE;
-        event.dummy.dummy = 0;
-        win->win_callback(win, &event, win->userdata);
-    }
+    event.window = win;
+    event.type = GLWT_WINDOW_EXPOSE;
+    event.dummy.dummy = 0;
+    glwt.event_callback(&event);
 
     [uiwindow makeKeyAndVisible];
 

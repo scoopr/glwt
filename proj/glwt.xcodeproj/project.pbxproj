@@ -279,7 +279,7 @@
 		BFE95F561640662F00AF4B9F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0600;
 			};
 			buildConfigurationList = BFE95F591640662F00AF4B9F /* Build configuration list for PBXProject "glwt" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -488,6 +488,7 @@
 					../ext/glxw/include,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = "";
 			};
 			name = Debug;

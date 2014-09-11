@@ -19,9 +19,8 @@
 #define LOGW(...) ((void)fprintf(stderr, __VA_ARGS__))
 #endif
 
-static void error_callback(const char *msg, void *userdata)
+static void error_callback(const char *msg)
 {
-    (void)userdata;
 #ifdef ANDROID
     LOGW(msg);
 #else
@@ -29,10 +28,8 @@ static void error_callback(const char *msg, void *userdata)
 #endif
 }
 
-static void window_callback(GLWTWindow *window, const GLWTWindowEvent *event, void *userdata)
+static void event_callback(const GLWTEvent *event)
 {
-    (void)window;
-    (void)userdata;
 
     switch(event->type)
     {
@@ -41,7 +38,7 @@ static void window_callback(GLWTWindow *window, const GLWTWindowEvent *event, vo
             break;
         case GLWT_WINDOW_SURFACE_CREATE:
             LOGI("Surface create\n");
-            glwtMakeCurrent(window);
+            glwtMakeCurrent(event->window);
 
             if(glxwInit() != 0)
             {
@@ -60,13 +57,13 @@ static void window_callback(GLWTWindow *window, const GLWTWindowEvent *event, vo
             LOGI("Window exposed\n");
             {
                 int width, height;
-                glwtWindowGetSize(window, &width, &height);
+                glwtWindowGetSize(event->window, &width, &height);
                 LOGI("**** window size: %d x %d\n", width, height);
 
                 glClearColor(0.2, 0.4, 0.7, 1.0);
                 glClear(GL_COLOR_BUFFER_BIT);
 
-                glwtSwapBuffers(window);
+                glwtSwapBuffers(event->window);
             }
             break;
         case GLWT_WINDOW_RESIZE:
@@ -80,19 +77,19 @@ static void window_callback(GLWTWindow *window, const GLWTWindowEvent *event, vo
         case GLWT_WINDOW_FOCUS_OUT:
             LOGI("Window focus %s\n", (event->type == GLWT_WINDOW_FOCUS_IN) ? "in" : "out");
             break;
-        case GLWT_WINDOW_KEY_UP:
-        case GLWT_WINDOW_KEY_DOWN:
+        case GLWT_KEY_PRESS:
+        case GLWT_KEY_RELEASE:
             LOGI("Key %s  keysym: 0x%x  scancode: %d  mod: %X\n",
-                (event->type == GLWT_WINDOW_KEY_DOWN) ? "down" : "up",
+                (event->type == GLWT_KEY_PRESS) ? "down" : "up",
                 event->key.keysym, event->key.scancode, event->key.mod);
             break;
-        case GLWT_WINDOW_BUTTON_UP:
-        case GLWT_WINDOW_BUTTON_DOWN:
+        case GLWT_BUTTON_PRESS:
+        case GLWT_BUTTON_RELEASE:
             LOGI("Button %s  x: %d  y: %d  button: %d  mod: %X\n",
-                (event->type == GLWT_WINDOW_BUTTON_DOWN) ? "down" : "up",
+                (event->type == GLWT_BUTTON_PRESS) ? "down" : "up",
                 event->button.x, event->button.y, event->button.button, event->button.mod);
             break;
-        case GLWT_WINDOW_MOUSE_MOTION:
+        case GLWT_MOUSE_MOTION:
             LOGI("Motion  x: %d  y: %d  buttons: %X\n",
                 event->motion.x, event->motion.y, event->motion.buttons);
             break;
@@ -100,10 +97,10 @@ static void window_callback(GLWTWindow *window, const GLWTWindowEvent *event, vo
         case GLWT_WINDOW_MOUSE_LEAVE:
             LOGI("Mouse %s\n", (event->type == GLWT_WINDOW_MOUSE_ENTER) ? "enter" : "leave");
             break;
-        case GLWT_WINDOW_TOUCH_BEGIN:
-        case GLWT_WINDOW_TOUCH_MOVE:
-        case GLWT_WINDOW_TOUCH_END:
-        case GLWT_WINDOW_TOUCH_CANCEL:
+        case GLWT_TOUCH_BEGIN:
+        case GLWT_TOUCH_MOVE:
+        case GLWT_TOUCH_END:
+        case GLWT_TOUCH_CANCEL:
             {
                 const char* type_names[] = {
                     "begin",
@@ -111,7 +108,7 @@ static void window_callback(GLWTWindow *window, const GLWTWindowEvent *event, vo
                     "end",
                     "cancel"
                 };
-                LOGI("Touch %s x: %f y: %f id: %d\n", type_names[event->type - GLWT_WINDOW_TOUCH_BEGIN], 
+                LOGI("Touch %s x: %f y: %f id: %d\n", type_names[event->type - GLWT_TOUCH_BEGIN], 
                                            event->touch.x, event->touch.y, event->touch.touch_id);
             }
             break;
@@ -124,17 +121,13 @@ struct my_app_state {
 // this is global state
 };
 
-void glwtAppStop(void *userdata) {
-    struct my_app_state* app_state = userdata;
-    free(app_state);
+void glwtAppStop() {
 }
 
-void glwtAppPause(void *userdata) {
-//    struct my_app_state* app_state = userdata;
+void glwtAppPause() {
 }
 
-void glwtAppResume(void *userdata) {
-//    struct my_app_state* app_state = userdata;
+void glwtAppResume() {
 }
 
 GLWTWindow *glwtAppInit(int argc, char *argv[])
@@ -150,11 +143,11 @@ GLWTWindow *glwtAppInit(int argc, char *argv[])
         2, 0
     };
     
-    struct my_app_state* app_state = calloc(sizeof(struct my_app_state), 1);
+//    struct my_app_state* app_state = calloc(sizeof(struct my_app_state), 1);
     
 
-    if(glwtInit(&glwt_config, error_callback, app_state) != 0)
+    if(glwtInit(&glwt_config, event_callback, error_callback) != 0)
         return 0;
 
-    return glwtWindowCreate("", 400, 300, NULL, window_callback, NULL);
+    return glwtWindowCreate("", 400, 300, NULL, NULL);
 }

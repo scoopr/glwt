@@ -28,19 +28,18 @@
 
 -(void)applicationDidEnterBackground:(UIApplication *)application
 {
-    glwtAppPause(glwt.userdata);
+    glwtAppPause();
 }
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
-    glwtAppResume(glwt.userdata);
+    glwtAppResume();
 }
 
 -(void)applicationWillTerminate:(UIApplication *)application
 {
-    glwtAppPause(glwt.userdata);
-    glwtAppStop(glwt.userdata);
-    glwt.userdata = NULL;
+    glwtAppPause();
+    glwtAppStop();
 }
 
 
@@ -48,7 +47,7 @@
 {
 
     mainWindow = glwtAppInit(0, NULL);
-    glwtAppResume(glwt.userdata);
+    glwtAppResume();
 
     return NO;
 }
@@ -64,12 +63,13 @@ int glwtAppMain(int argc, char *argv[])
 
 int glwtInit(
              const GLWTConfig *config,
-             void (*error_callback)(const char *msg, void *userdata),
-             void *userdata
+             void (*event_callback)(const GLWTEvent *event),
+             void (*error_callback)(const char *msg)
              )
 {
+    // TODO: config
+    glwt.event_callback = event_callback;
     glwt.error_callback = error_callback;
-    glwt.userdata = userdata;
     return 0;
 }
 
